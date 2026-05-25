@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Add Result</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'DM Sans', sans-serif; background: #f8fafc; }
+        h1, h2, .brand { font-family: 'Sora', sans-serif; }
+        .form-input {
+            width: 100%; padding: 10px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #1e293b;
+            background: #fff;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+        }
+        .form-input::placeholder { color: #94a3b8; }
+        .form-label { font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px; display: block; }
+        .nav-link { position: relative; padding-bottom: 2px; }
+        .nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: #3b82f6; transition: width 0.25s; }
+        .nav-link:hover::after { width: 100%; }
+        .marks-row { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 12px; position: relative; }
+        .marks-row input { background: white; }
+        .remove-btn { position: absolute; top: 12px; right: 12px; color: #ef4444; cursor: pointer; font-size: 18px; line-height: 1; }
+        .remove-btn:hover { color: #b91c1c; }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-7xl mx-auto px-6 py-3">
+        <div class="flex items-center justify-between">
+            <a href="#" class="brand text-xl font-bold text-blue-700 tracking-tight">📋 Result Viewer</a>
+            <div class="hidden md:flex items-center gap-7">
+                <a th:href="@{/}" class="nav-link text-gray-600 hover:text-blue-700 font-medium text-sm transition">Home</a>
+                <a th:href="@{'/view_result'}" class="nav-link text-gray-600 hover:text-blue-700 font-medium text-sm transition">View Result</a>
+                <a th:href="@{'/admin/add_result'}" class="nav-link text-blue-700 font-semibold text-sm border-b-2 border-blue-700 pb-0.5">Add Result</a>
+                <span class="text-gray-400 text-sm" th:text="${name}"></span>
+                <form th:action="@{'/user_logout'}" method="post">
+                    <button class="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 font-medium text-sm px-4 py-1.5 rounded-lg transition">
+                        Logout
+                    </button>
+                </form>
+            </div>
+            <button id="menu-btn" class="md:hidden text-gray-600 focus:outline-none">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden flex flex-col gap-3 mt-4 pb-4 border-t border-gray-100 pt-4">
+            <a th:href="@{/}" class="text-gray-600 text-sm font-medium">Home</a>
+            <a th:href="@{'/view_result'}" class="text-gray-600 text-sm font-medium">View Result</a>
+            <a th:href="@{'/admin/add_result'}" class="text-blue-700 text-sm font-semibold">Add Result</a>
+        </div>
+    </div>
+</nav>
+
+<!-- PAGE CONTENT -->
+<div class="max-w-3xl mx-auto px-4 py-10">
+
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900">Add Student Result</h1>
+        </div>
+        <p class="text-gray-500 text-sm ml-13">Fill in student details and subject marks below to add to the database.</p>
+    </div>
+
+    <!-- FORM CARD -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+
+        <form novalidate th:action="@{'/admin/add_result_action'}" th:object="${studentForm}" method="post" enctype="multipart/form-data">
+
+            <!-- Section: Personal Info -->
+            <div class="px-8 py-6 border-b border-gray-100">
+                <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-5">Personal Information</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                    <div>
+                        <label for="studentName" class="form-label">Student Name <span class="text-red-500">*</span></label>
+                        <input th:field="*{name}" type="text" id="studentName" class="form-input" placeholder="e.g. Rahul Sharma" required/>
+                        <span class="text-red-500 text-xs mt-1 block" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+                    </div>
+
+                    <div>
+                        <label for="rollNumber" class="form-label">Roll Number <span class="text-red-500">*</span></label>
+                        <input th:field="*{rollNumber}" type="text" id="rollNumber" class="form-input" placeholder="e.g. 2024001" required/>
+                        <span class="text-red-500 text-xs mt-1 block" th:if="${#fields.hasErrors('rollNumber')}" th:errors="*{rollNumber}"></span>
+                    </div>
+
+                    <div>
+                        <label for="email" class="form-label">Email Address <span class="text-red-500">*</span></label>
+                        <input th:field="*{email}" type="email" id="email" class="form-input" placeholder="student@example.com" required/>
+                        <span class="text-red-500 text-xs mt-1 block" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+                    </div>
+
+                    <div>
+                        <label for="dateOfBirth" class="form-label">Date of Birth <span class="text-red-500">*</span></label>
+                        <input th:field="*{dateOfBirth}" type="date" id="dateOfBirth" class="form-input" required/>
+                        <span class="text-red-500 text-xs mt-1 block" th:if="${#fields.hasErrors('dateOfBirth')}" th:errors="*{dateOfBirth}"></span>
+                    </div>
+
+                    <div>
+                        <label for="fatherName" class="form-label">Father's Name <span class="text-red-500">*</span></label>
+                        <input th:field="*{fatherName}" type="text" id="fatherName" class="form-input" placeholder="e.g. Suresh Sharma" required/>
+                        <span class="text-red-500 text-xs mt-1 block" th:if="${#fields.hasErrors('fatherName')}" th:errors="*{fatherName}"></span>
+                    </div>
+
+                    <div>
+                        <label for="schoolName" class="form-label">School Name <span class="text-red-500">*</span></label>
+                        <input th:field="*{schoolName}" type="text" id="schoolName" class="form-input" placeholder="e.g. Delhi Public School" required/>
+                        <span class="text-red-500 text-xs mt-1 block" th:if="${#fields.hasErrors('schoolName')}" th:errors="*{schoolName}"></span>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="address" class="form-label">Address <span class="text-red-500">*</span></label>
+                        <textarea th:field="*{address}" id="address" rows="3" class="form-input" placeholder="Enter full address" required></textarea>
+                        <span class="text-red-500 text-xs mt-1 block" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Academic Info -->
+            <div class="px-8 py-6 border-b border-gray-100">
+                <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-5">Academic Information</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                    <div>
+                        <label for="standard" class="form-label">Standard / Class <span class="text-red-500">*</span></label>
+                        <select id="standard" th:field="*{standard}" class="form-input">
+                            <option value="" disabled selected>Select standard</option>
+                            <option th:each="standard : ${standardOptions}" th:value="${standard}" th:text="${standard}"></option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Gender <span class="text-red-500">*</span></label>
+                        <div class="flex gap-6 mt-2">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" th:field="*{gender}" th:value="male" class="w-4 h-4 text-blue-600 accent-blue-600" checked>
+                                <span class="text-sm text-gray-700">Male</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" th:field="*{gender}" th:value="Female" class="w-4 h-4 accent-blue-600">
+                                <span class="text-sm text-gray-700">Female</span>
+                            </label>
+                        </div>
+                        <span class="text-red-500 text-xs mt-1 block" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Subject Marks -->
+            <div class="px-8 py-6 border-b border-gray-100">
+                <div class="flex items-center justify-between mb-5">
+                    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-widest">Subject Marks</h2>
+                    <button onclick="addMarksRow()" type="button"
+                            class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Subject
+                    </button>
+                </div>
+
+                <!-- Header row (visible when there are entries) -->
+                <div id="marks-header" class="hidden grid grid-cols-5 gap-3 mb-2 px-1">
+                    <span class="text-xs font-semibold text-gray-400 uppercase">Subject</span>
+                    <span class="text-xs font-semibold text-gray-400 uppercase">Marks</span>
+                    <span class="text-xs font-semibold text-gray-400 uppercase">Max Marks</span>
+                    <span class="text-xs font-semibold text-gray-400 uppercase">Grade</span>
+                    <span class="text-xs font-semibold text-gray-400 uppercase">Feedback</span>
+                </div>
+
+                <div id="marks_container">
+                    <!-- Rows added dynamically -->
+                </div>
+
+                <p id="marks-empty" class="text-center text-gray-400 text-sm py-6 border-2 border-dashed border-gray-200 rounded-xl">
+                    No subjects added yet. Click "Add Subject" to begin.
+                </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="px-8 py-5 bg-gray-50 flex items-center justify-end gap-3">
+                <button type="reset" onclick="clearMarks()"
+                        class="px-6 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition">
+                    Clear All
+                </button>
+                <button type="submit"
+                        class="px-8 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-sm">
+                    Save Result →
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    let index = 0;
+
+    function addMarksRow() {
+        const container = document.getElementById('marks_container');
+        const header = document.getElementById('marks-header');
+        const empty = document.getElementById('marks-empty');
+
+        header.classList.remove('hidden');
+        empty.classList.add('hidden');
+
+        const row = document.createElement('div');
+        row.className = 'marks-row grid grid-cols-5 gap-3 items-start';
+        row.id = `marks-row-${index}`;
+        row.innerHTML = `
+            <div>
+                <input name="marks[${index}].subjectName" class="form-input" type="text" placeholder="e.g. Maths">
+            </div>
+            <div>
+                <input name="marks[${index}].marks" class="form-input" type="number" placeholder="e.g. 85">
+            </div>
+            <div>
+                <input name="marks[${index}].maxMarks" class="form-input" type="number" placeholder="e.g. 100">
+            </div>
+            <div>
+                <input name="marks[${index}].grade" class="form-input" type="text" placeholder="e.g. A+">
+            </div>
+            <div class="flex gap-2 items-center">
+                <input name="marks[${index}].feedback" class="form-input" type="text" placeholder="e.g. Excellent">
+                <button type="button" onclick="removeRow(${index})" class="text-red-400 hover:text-red-600 transition flex-shrink-0" title="Remove">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        `;
+        container.appendChild(row);
+        index++;
+    }
+
+    function removeRow(i) {
+        const row = document.getElementById(`marks-row-${i}`);
+        if (row) row.remove();
+        if (document.getElementById('marks_container').children.length === 0) {
+            document.getElementById('marks-header').classList.add('hidden');
+            document.getElementById('marks-empty').classList.remove('hidden');
+        }
+    }
+
+    function clearMarks() {
+        document.getElementById('marks_container').innerHTML = '';
+        document.getElementById('marks-header').classList.add('hidden');
+        document.getElementById('marks-empty').classList.remove('hidden');
+        index = 0;
+    }
+
+    document.getElementById('menu-btn').addEventListener('click', () => {
+        document.getElementById('mobile-menu').classList.toggle('hidden');
+    });
+</script>
+</body>
+</html>
